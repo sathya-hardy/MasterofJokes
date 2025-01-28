@@ -1,0 +1,16 @@
+[project]
+name = "flaskr"
+version = "1.0.0"
+description = "This is a basic joke app, that loosely follows the concept of 'take a penny leave a penny', built with the flask tutorial as a starting point"
+dependencies = [
+    "flask",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.docker]
+docker_image = "flaskr-app"
+dockerfile_path = "Dockerfile"
+docker_build_instructions = "To build the Docker image, run the following command: docker build -t flaskr-app .Once the image is built, you can run the container with:docker run -p 8080:8080 flaskr-app. It tells you the waitress is serving on http://0.0.0.0:8080, but that gives an about:blank. If you go to localhost:8080, for some reason that works and takes you to the login page."

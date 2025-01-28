@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Posts{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('jokes.create') }}">Leave a joke</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% for joke in jokes %}
+    {% if g.user['id'] != joke['author_id'] %} <!--I am not really sure why you wouldn't list your jokes too but whatever-->
+        <article class="post">
+        <header>
+            <div>
+                <h1><a class="action" href="{{ url_for('jokes.viewSingle', id=joke['id']) }}">{{ joke['title'] }}</a></h1>
+                <div class="about">by {{ joke['nickname'] }} on {{ joke['created'].strftime('%Y-%m-%d') }} with an average rating of:
+                {% if joke['numberOfRatings'] > 0 %}
+                {{ joke['ratings'] / joke['numberOfRatings'] | round(2) }}
+                {% else %}
+                    No ratings yet :(
+                {% endif %}
+                </div>
+            </div>
+        </header>
+        </article>
+    {% endif %}
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Viewing "{{ joke['title'] }}"{% endblock %}</h1>
+  {% if g.user and g.user['userRole'] == 0 %}
+    <a class="action" href="{{ url_for('jokes.takeAJoke') }}">Take a joke</a>
+    <a class="action" href="{{ url_for('jokes.create') }}">Leave a joke</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+    <article class="post">
+        <header>
+        {% if g.user['id'] == joke['author_id'] or g.user['userRole'] == 1 %}
+            <div>
+            <div class="about">by {{ joke['nickname'] }} on {{ joke['created'].strftime('%Y-%m-%d') }} with an average rating of:
+                {% if joke['numberOfRatings'] > 0 %}
+                {{ joke['ratings'] / joke['numberOfRatings'] | round(2) }}
+                {% else %}
+                No ratings yet :(
+                {% endif %}
+            </div>
+            <p class="body">{{ joke['body'] }}</p>
+            </div>
+            <a class="action" href="{{ url_for('jokes.update', id=joke['id']) }}">Edit</a>
+            <form action="{{ url_for('jokes.delete', id=joke['id']) }}" method="post">
+                <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+            </form>
+        {% else %}
+        <div>
+            <div class="about">by {{ joke['nickname'] }} on {{ joke['created'].strftime('%Y-%m-%d') }} with an average rating of:
+                {% if joke['numberOfRatings'] > 0 %}
+                {{ joke['ratings'] / joke['numberOfRatings'] | round(2) }}
+                {% else %}
+                No ratings yet :(
+                {% endif %}
+            </div>
+            <p class="body">{{ joke['body'] }}</p>
+            <form method="post" action="{{ url_for('jokes.rate_joke', joke_id=joke['id']) }}">
+                <label for="rating">Rate this joke (1-10):</label>
+                <input type="number" name="rating" id="rating" min="1" max="10" required>
+                <button type="submit">Submit Rating</button>
+            </form>
+            </div>
+        {% endif %}
+        </header>
+    </article>
+    <hr>
+{% endblock %}
