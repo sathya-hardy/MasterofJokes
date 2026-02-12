@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderator Tools{% endblock %}
+
+{% block header %}
+<div class="page-header">
+  <h1>Moderator Dashboard</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+  {% if g.user['userRole'] == 1 %}
+
+    <!-- User Management -->
+    <h3 class="section-title">Manage Users</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nickname</th>
+            <th>Email</th>
+            <th>Joke Balance</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user['id'] }}</td>
+            <td><strong>{{ user['nickname'] }}</strong></td>
+            <td>{{ user['email'] }}</td>
+            <td>
+              <form method="post" action="{{ url_for('jokes.modUpdate_jokeBalance') }}">
+                <input type="hidden" name="user_id" value="{{ user['id'] }}">
+                <input type="number" name="user_jokebalance" value="{{ user['jokebalance'] }}" max="500" min="0">
+                <button type="submit" name="action" value="ChangeBalance" class="btn btn-sm btn-secondary">Update</button>
+              </form>
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('jokes.update_userRole') }}">
+                <input type="hidden" name="user_id" value="{{ user['id'] }}">
+                {% if user['userRole'] == 0 %}
+                  <button type="submit" name="action" value="promote" class="btn btn-sm btn-success">Promote</button>
+                {% elif g.user['id'] != user['id'] %}
+                  <button type="submit" name="action" value="demote" class="btn btn-sm btn-warning">Demote</button>
+                {% else %}
+                  <button type="button" class="btn btn-sm" disabled>You (cannot demote)</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Create New User -->
+    <h3 class="section-title">Create New User</h3>
+    <div class="card">
+      <form method="post" action="{{ url_for('jokes.initializeUser') }}">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;">
+          <div class="form-group">
+            <label for="nickname">Nickname</label>
+            <input type="text" name="nickname" maxlength="20" minlength="3" required placeholder="username">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" name="email" maxlength="30" minlength="3" required placeholder="user@example.com">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" maxlength="30" minlength="3" required placeholder="password">
+          </div>
+          <div class="form-group">
+            <label for="jokeBalance">Joke Balance</label>
+            <input type="number" name="jokeBalance" value="0" max="500" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="userRole">Role</label>
+            <input type="number" name="userRole" value="0" max="1" min="0" required>
+            <span class="hint">0 = User, 1 = Moderator</span>
+          </div>
+        </div>
+        <button type="submit" name="action" value="CreateUser" class="btn btn-primary mt-1">Create User</button>
+      </form>
+    </div>
+
+    <!-- Joke Management -->
+    <h3 class="section-title">Manage Jokes</h3>
+    <p class="section-subtitle">Edit or delete any joke. Delete actions are immediate.</p>
+    {% for joke in jokes %}
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <h2><a href="{{ url_for('jokes.viewSingle', id=joke['id']) }}">{{ joke['title'] }}</a></h2>
+            <div class="card-meta">
+              by <strong>{{ joke['nickname'] }}</strong> on {{ joke['created'].strftime('%Y-%m-%d') }}
+              &middot;
+              {% if joke['numberOfRatings'] > 0 %}
+                <span class="rating-badge">{{ (joke['ratings'] / joke['numberOfRatings']) | round(2) }} / 10</span>
+              {% else %}
+                <span class="rating-badge no-rating">No ratings yet</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="card-actions">
+            <a class="btn btn-sm btn-secondary" href="{{ url_for('jokes.update', id=joke['id']) }}">Edit</a>
+            <a class="btn btn-sm btn-danger" href="{{ url_for('jokes.delete', id=joke['id']) }}">Delete</a>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+
+    <!-- Logging -->
+    <h3 class="section-title">Logging Configuration</h3>
+    <div class="card">
+      <form method="post" action="{{ url_for('jokes.update_loggingLevel') }}" style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+        {% if is_debug %}
+          <div class="log-status">
+            Current level: <span class="badge badge-debug">DEBUG</span>
+          </div>
+          <button type="submit" name="action" value="INFO" class="btn btn-sm btn-warning">Switch to INFO</button>
+        {% else %}
+          <div class="log-status">
+            Current level: <span class="badge badge-info">INFO</span>
+          </div>
+          <button type="submit" name="action" value="DEBUG" class="btn btn-sm btn-success">Switch to DEBUG</button>
+        {% endif %}
+      </form>
+    </div>
+
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <p>This page is for moderators only.</p>
+        <a class="btn btn-secondary" href="{{ url_for('jokes.takeAJoke') }}">Back to Jokes</a>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

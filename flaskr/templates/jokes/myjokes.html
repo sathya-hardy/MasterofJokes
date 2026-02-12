@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}My Jokes{% endblock %}
+
+{% block header %}
+<div class="page-header">
+  <h1>My Jokes</h1>
+  <div class="actions">
+    {% if g.user %}
+      {% if g.user['jokebalance'] > 0 %}
+        <a class="btn btn-secondary" href="{{ url_for('jokes.takeAJoke') }}">Browse Jokes</a>
+      {% endif %}
+      <a class="btn btn-primary" href="{{ url_for('jokes.create') }}">Leave a Joke</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+  {% if jokes %}
+    {% for joke in jokes %}
+      {% if g.user['id'] == joke['author_id'] %}
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2><a href="{{ url_for('jokes.viewSingle', id=joke['id']) }}">{{ joke['title'] }}</a></h2>
+              <div class="card-meta">
+                by <strong>{{ joke['nickname'] }}</strong> on {{ joke['created'].strftime('%Y-%m-%d') }}
+                &middot;
+                {% if joke['numberOfRatings'] > 0 %}
+                  <span class="rating-badge">{{ (joke['ratings'] / joke['numberOfRatings']) | round(2) }} / 10</span>
+                {% else %}
+                  <span class="rating-badge no-rating">No ratings yet</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="card-actions">
+              <a class="btn btn-sm btn-secondary" href="{{ url_for('jokes.update', id=joke['id']) }}">Edit</a>
+            </div>
+          </div>
+        </article>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <p>You haven't posted any jokes yet.</p>
+      <a class="btn btn-primary" href="{{ url_for('jokes.create') }}">Post your first joke!</a>
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Posts{% endblock %}
+
+{% block header %}
+<div class="page-header">
+  <h1>Posts</h1>
+  <div class="actions">
+    {% if g.user %}
+      <a class="btn btn-primary" href="{{ url_for('jokes.create') }}">Leave a Joke</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+  {% for post in posts %}
+    <article class="card">
+      <div class="card-header">
+        <div>
+          <h2>{{ post['title'] }}</h2>
+          <div class="card-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</div>
+        </div>
+        {% if g.user['id'] == post['author_id'] %}
+          <div class="card-actions">
+            <a class="btn btn-sm btn-secondary" href="{{ url_for('blog.update', id=joke['id']) }}">Edit</a>
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-body">{{ post['body'] }}</div>
+    </article>
+  {% endfor %}
+{% endblock %}
