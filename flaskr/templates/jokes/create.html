@@ -1,21 +1,37 @@
 {% extends 'base.html' %}
 
+{% block title %}Leave a Joke{% endblock %}
+
 {% block header %}
-  <h1>{% block title %}Leave a joke{% endblock %}</h1>
+<div class="page-header">
+  <h1>Leave a Joke</h1>
+  <div class="actions">
     {% if g.user %}
-      <a class="action" href="{{ url_for('jokes.myjokes') }}">My jokes</a>
+      <a class="btn btn-secondary" href="{{ url_for('jokes.myjokes') }}">My Jokes</a>
     {% endif %}
+  </div>
+</div>
 {% endblock %}
 
 {% block content %}
   {% if g.user %}
-    <h2>Welcome {{ g.user['nickname'] }}, you currently have a joke balance of {{ g.user['jokebalance'] }}</a>
+    <div class="welcome-banner">
+      <h2>Welcome, {{ g.user['nickname'] }}!</h2>
+      <span class="balance">Joke Balance: {{ g.user['jokebalance'] }}</span>
+    </div>
   {% endif %}
-  <form method="post">
-    <label for="title">Title</label>
-    <input name="title" id="title" value="{{ request.form['title'] }}" required>
-    <label for="body">Body</label>
-    <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
-    <input type="submit" value="Save">
-  </form>
+
+  <div class="card">
+    <form method="post">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" value="{{ request.form['title'] }}" required placeholder="Give your joke a catchy title (max 10 words)">
+      </div>
+      <div class="form-group">
+        <label for="body">The Joke</label>
+        <textarea name="body" id="body" placeholder="Write your best joke here...">{{ request.form['body'] }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Post Joke</button>
+    </form>
+  </div>
 {% endblock %}

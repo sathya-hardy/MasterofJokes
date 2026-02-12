@@ -1,28 +1,33 @@
 {% extends 'base.html' %}
 
+{% block title %}Posts{% endblock %}
+
 {% block header %}
-  <h1>{% block title %}Posts{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('jokes.create') }}">Leave a joke</a>
-  {% endif %}
+<div class="page-header">
+  <h1>Posts</h1>
+  <div class="actions">
+    {% if g.user %}
+      <a class="btn btn-primary" href="{{ url_for('jokes.create') }}">Leave a Joke</a>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}
 
 {% block content %}
   {% for post in posts %}
-    <article class="post">
-      <header>
+    <article class="card">
+      <div class="card-header">
         <div>
-          <h1>{{ post['title'] }}</h1>
-          <div class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</div>
+          <h2>{{ post['title'] }}</h2>
+          <div class="card-meta">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</div>
         </div>
         {% if g.user['id'] == post['author_id'] %}
-          <a class="action" href="{{ url_for('blog.update', id=joke['id']) }}">Edit</a>
+          <div class="card-actions">
+            <a class="btn btn-sm btn-secondary" href="{{ url_for('blog.update', id=joke['id']) }}">Edit</a>
+          </div>
         {% endif %}
-      </header>
-      <p class="body">{{ post['body'] }}</p>
+      </div>
+      <div class="card-body">{{ post['body'] }}</div>
     </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
   {% endfor %}
 {% endblock %}

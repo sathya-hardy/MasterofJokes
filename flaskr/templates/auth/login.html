@@ -1,13 +1,29 @@
-{% extends 'base.html' %} {% block header %}
-<h1>{% block title %}Log In{% endblock %}</h1>
-{% endblock %} {% block content %}
-<form method="post">
-  <label for="nickname">Nickname</label>
-  <input name="nickname" id="nickname" />
-  <label for="email">Email Address</label>
-  <input name="email" id="email" />
-  <label for="password">Password</label>
-  <input type="password" name="password" id="password" required />
-  <input type="submit" value="Log In" />
-</form>
+{% extends 'base.html' %}
+
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <h1>Welcome Back</h1>
+    <form method="post">
+      <div class="form-group">
+        <label for="nickname">Nickname</label>
+        <input type="text" name="nickname" id="nickname" placeholder="Enter your nickname">
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" name="email" id="email" placeholder="Or use your email instead">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" required placeholder="Enter your password">
+      </div>
+      <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+    <div class="auth-footer">
+      Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

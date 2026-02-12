@@ -1,32 +1,46 @@
 {% extends 'base.html' %}
 
+{% block title %}Browse Jokes{% endblock %}
+
 {% block header %}
-  <h1>{% block title %}Posts{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('jokes.create') }}">Leave a joke</a>
-  {% endif %}
+<div class="page-header">
+  <h1>Browse Jokes</h1>
+  <div class="actions">
+    {% if g.user %}
+      <a class="btn btn-primary" href="{{ url_for('jokes.create') }}">Leave a Joke</a>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}
 
 {% block content %}
+  {% set has_jokes = false %}
   {% for joke in jokes %}
-    {% if g.user['id'] != joke['author_id'] %} <!--I am not really sure why you wouldn't list your jokes too but whatever-->
-        <article class="post">
-        <header>
-            <div>
-                <h1><a class="action" href="{{ url_for('jokes.viewSingle', id=joke['id']) }}">{{ joke['title'] }}</a></h1>
-                <div class="about">by {{ joke['nickname'] }} on {{ joke['created'].strftime('%Y-%m-%d') }} with an average rating of:
-                {% if joke['numberOfRatings'] > 0 %}
-                {{ joke['ratings'] / joke['numberOfRatings'] | round(2) }}
-                {% else %}
-                    No ratings yet :(
-                {% endif %}
-                </div>
+    {% if g.user['id'] != joke['author_id'] %}
+      {% set has_jokes = true %}
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <h2><a href="{{ url_for('jokes.viewSingle', id=joke['id']) }}">{{ joke['title'] }}</a></h2>
+            <div class="card-meta">
+              by <strong>{{ joke['nickname'] }}</strong> on {{ joke['created'].strftime('%Y-%m-%d') }}
+              &middot;
+              {% if joke['numberOfRatings'] > 0 %}
+                <span class="rating-badge">{{ (joke['ratings'] / joke['numberOfRatings']) | round(2) }} / 10</span>
+              {% else %}
+                <span class="rating-badge no-rating">No ratings yet</span>
+              {% endif %}
             </div>
-        </header>
-        </article>
-    {% endif %}
-    {% if not loop.last %}
-      <hr>
+          </div>
+        </div>
+      </article>
     {% endif %}
   {% endfor %}
+
+  {% if not has_jokes %}
+    <div class="empty-state">
+      <p>No jokes from other users yet.</p>
+      <a class="btn btn-primary" href="{{ url_for('jokes.create') }}">Be the first to post!</a>
+    </div>
+  {% endif %}
 {% endblock %}
