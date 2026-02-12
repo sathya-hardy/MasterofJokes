@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Leave a joke{% endblock %}</h1>
+    {% if g.user %}
+      <a class="action" href="{{ url_for('jokes.myjokes') }}">My jokes</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if g.user %}
+    <h2>Welcome {{ g.user['nickname'] }}, you currently have a joke balance of {{ g.user['jokebalance'] }}</a>
+  {% endif %}
+  <form method="post">
+    <label for="title">Title</label>
+    <input name="title" id="title" value="{{ request.form['title'] }}" required>
+    <label for="body">Body</label>
+    <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}

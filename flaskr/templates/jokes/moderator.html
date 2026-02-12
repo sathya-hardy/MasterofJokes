@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Moderator Tools{% endblock %}</h1>
+{% endblock %}
+{% block content %}
+    {% if g.user['userRole'] == 1 %}
+        <h3>Manage User Roles</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Nickname</th>
+                    <th>Email</th>
+                    <th>Joke Balance</th>
+                    <th>User Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user['id'] }}</td>
+                    <td>{{ user['nickname'] }}</td>
+                    <td>{{ user['email'] }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('jokes.modUpdate_jokeBalance') }}">
+                            <input type="hidden" name="user_id" value="{{ user['id'] }}">
+                            <input type="number" name="user_jokebalance" value="{{ user['jokebalance'] }}" max=500 min=0>
+                            <button type="submit" name="action" value="ChangeBalance">Change Balance</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="{{ url_for('jokes.update_userRole') }}">
+                            <input type="hidden" name="user_id" value="{{ user['id'] }}">
+                            {% if user['userRole'] == 0 %}
+                                <button type="submit" name="action" value="promote">Promote to Moderator</button>
+                            {% elif g.user['id'] != user['id'] %}
+                                <button type="submit" name="action" value="demote">Demote to User</button>
+                            {% else %}
+                            <button type="submit" name="action" value="demote" style="pointer-events:none;cursor:not-allowed;opacity:.65;">You cannot demote yourself</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Create new user</h3>
+        <h6>(userRole 1 for mod, 0 for user)</h6>
+        <form method="post" action="{{ url_for('jokes.initializeUser') }}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nickname</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>Joke Balance</th>
+                        <th>User Role</th>
+                        <th>Add to database</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" name="nickname" value="" maxlength=20 minlength=3 required>
+                        </td>
+                        <td>
+                            <input type="email" name="email" value="" maxlength=30 minlength=3 required>
+                        </td>
+                        <td>
+                            <input type="password" name="password" value="" maxlength=30 minlength=3 required>
+                        </td>
+                        <td>
+                            <input type="number" name="jokeBalance" value=0 max=500 min=0 required>
+                        </td>
+                        <td>
+                            <input type="number" name="userRole" value=0 max=1 min=0 required>
+                        </td>
+                        <td>
+                            <button type="submit" name="action" value="CreateUser">Create User</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+        <h3>Edit or Delete jokes - Deleting will not give a warning before deletion</h3>
+        {% for joke in jokes %}
+            <article class="post">
+            <header>
+                <div>
+                    <h1><a class="action" href="{{ url_for('jokes.viewSingle', id=joke['id']) }}">{{ joke['title'] }}</a></h1>
+                    <div class="about">by {{ joke['nickname'] }} on {{ joke['created'].strftime('%Y-%m-%d') }} with an average rating of:
+                    {% if joke['numberOfRatings'] > 0 %}
+                    {{ joke['ratings'] / joke['numberOfRatings'] | round(2) }}
+                    {% else %}
+                        No ratings yet :(
+                    {% endif %}
+                    </div>
+                </div>
+                <a class="action" href="{{ url_for('jokes.update', id=joke['id']) }}">Edit</a>
+                <a class="action" href="{{ url_for('jokes.delete', id=joke['id']) }}">Delete</a>
+            </header>
+            </article>
+            {% if not loop.last %}
+            <hr>
+            {% endif %}
+        {% endfor %}
+        <h3>Set DEBUG/INFO Logging Mode</h3>
+            <!--This will be pretty conceptual until the logging stuff is actually done
+            if debug is enabled:
+                <h6> DEBUG is currently: enabled (depending on how the logging mode can be accessed)</h6>
+                <form method="post" action="url_for('jokes.disableDebugLogging')">
+                    <button type="submit" name="action" value="CreateUser">Disable Debug Logging Mode</button>
+                </form>
+            else:
+                <h6> DEBUG is currently: disabled </h6>
+                <form method="post" action="url_for('jokes.enableDebugLogging')">
+                    <button type="submit" name="action" value="CreateUser">Enable Debug Logging Mode</button>
+                </form>
+        
+               
+                I only used INFO and DEBUG log levels like the assignment talked about in the is_debug command
+            -->
+            <form method="post" action="{{ url_for('jokes.update_loggingLevel') }}">
+                {% if is_debug %}
+                    <h4>Logging is currently set to: <span style="color:green">DEBUG</span></h4>
+                    <button type="submit" name="action" value="INFO">Set Log level to INFO</button>
+                {% else %}
+                    <h4>Logging is currently set to: <span style="color:orange">INFO</span></h4>
+                    <button type="submit" name="action" value="DEBUG">Set Log level to DEBUG</button>
+                {% endif %}
+            </form>
+    {% else %}
+        <h3>This page is for moderators only</h3>
+    {% endif %}
+
+
+{% endblock %}
