@@ -182,7 +182,3 @@ Logs are written to both the console and `moj.log`. The logging level can be cha
 | POST   | `/moderator.update_balance`        | Adjust a user's joke balance   |
 | POST   | `/moderator.initializeUser`        | Create a new user account      |
 | POST   | `/moderator.updateLoggingLevel`    | Toggle INFO/DEBUG logging      |
-
-## License
-
-This project was built as a learning exercise using the [Flask tutorial](https://flask.palletsprojects.com/en/stable/tutorial/) as a starting point.
